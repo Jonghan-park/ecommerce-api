@@ -1,4 +1,4 @@
-# ecommerce-api - clone coding (React.js)
+# ecommerce-api - clone coding (Node.js)
 
 # Period
 
