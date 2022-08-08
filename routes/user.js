@@ -1,5 +1,9 @@
 const User = require("../models/User");
-const { verifyToken, verifyTokenAuthorization } = require("./verifyToken");
+const {
+  verifyToken,
+  verifyTokenAuthorization,
+  verifyTokenAdmin,
+} = require("./verifyToken");
 
 const router = require("express").Router();
 
@@ -20,6 +24,43 @@ router.put("/:id", verifyTokenAuthorization, async (req, res) => {
       { new: true }
     );
     res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// Delete
+router.delete("/:id", verifyTokenAuthorization, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json("User has been deleted...");
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// Get user
+router.get("/find/:id", verifyTokenAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    const { password, ...others } = user._doc;
+
+    res.status(200).json(others);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// Get all user
+router.get("/", verifyTokenAdmin, async (req, res) => {
+  const query = req.query.new;
+  try {
+    // if query has new = true, the result will be limited as 5
+    const users = query
+      ? await User.find().sort({ _id: -1 }).limit(5)
+      : await User.find();
+
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json(error);
   }
